@@ -14,10 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-         credentials_json: '${{ secrets.TEST_GCP_CREDENTIALS_JSON }}'
+      - name: Create GCP credentials.json
+        run: |
+          echo ${{ secrets.GCP_CREDENTIALS_JSON }} > credentials.json
+          chmod 400 credentials.json
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v1
@@ -33,3 +33,7 @@ jobs:
       - name: Terraform Apply
         id: apply
         run: terraform apply -auto-approve
+
+      - name: Remove GCP credentials.json
+        if: always()
+        run: rm credentials.json

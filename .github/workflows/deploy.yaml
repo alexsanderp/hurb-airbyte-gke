@@ -26,13 +26,18 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
 
+      - name: Create GCP credentials.json
+        run: |
+          echo ${{ secrets.GCP_CREDENTIALS_JSON }} > credentials.json
+          chmod 400 credentials.json
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v1
         with:
-         credentials_json: '${{ secrets.TEST_GCP_CREDENTIALS_JSON }}'
+         create_credentials_file: credentials.json
 
       - name: Gcloud Connect to GKE
         uses: google-github-actions/get-gke-credentials@v1
@@ -56,3 +61,7 @@ jobs:
           kubectl create namespace airbyte | exit 0
           helm repo add airbyte https://airbytehq.github.io/helm-charts
           helm upgrade --install airbyte airbyte/airbyte --values airbyte/values.yaml --namespace airbyte
+
+      - name: Remove GCP credentials.json
+        if: always()
+        run: rm credentials.json
