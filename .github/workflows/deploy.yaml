@@ -14,8 +14,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install KubeCTL
-        uses: azure/setup-kubectl@v3
+      - name: Install Kubectl
+        run: |
+          curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | tee /etc/apt/sources.list.d/kubernetes.list
+          apt update
+          apt install -y kubectl
 
       - name: Install Helm
         uses: azure/setup-helm@v3
@@ -32,6 +36,29 @@ jobs:
 
       - name: Gcloud Auth
         run: gcloud auth activate-service-account --key-file=credentials.json
+
+      - name: Gcloud Connect to GKE
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          project_id: hurb-373018
+          cluster_name: hurb-gke-cluster
+          location: us-central1
+
+      - name: Helm Nginx
+        run: |
+          helm repo add nginx-stable https://helm.nginx.com/stable
+          helm upgrade --install nginx nginx-stable/nginx-ingress
+
+      - name: Helm Kubernetes Dashboard
+        run: |
+          helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+          helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+
+      - name: Helm Airbyte
+        run: |
+          kubectl create namespace airbyte | exit 0
+          helm repo add airbyte https://airbytehq.github.io/helm-charts
+          helm upgrade --install airbyte airbyte/airbyte --values airbyte/values.yaml --namespace airbyte
 
       - name: Remove GCP credentials.json
         if: always()
