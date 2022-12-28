@@ -21,6 +21,8 @@ http://airbyte.prorion.io/
 
 ### Future improvements:
 
+- airbyte auth
+- private cluster
 - cluster separate database (Cloud SQL?)
 - management of sensitive values
 - HTTPS
