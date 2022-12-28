@@ -38,6 +38,7 @@ jobs:
         run: |
           gcloud auth activate-service-account --key-file=credentials.json
           gcloud config set account github-actions@hurb-373018.iam.gserviceaccount.com
+          gcloud auth application-default login --no-launch-browser
 
       - name: Gcloud Connect to GKE
         uses: google-github-actions/get-gke-credentials@v1
