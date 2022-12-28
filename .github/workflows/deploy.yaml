@@ -34,8 +34,10 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
-      - name: Gcloud Auth
-        run: gcloud auth activate-service-account --key-file=credentials.json
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
 
       - name: Gcloud Connect to GKE
         uses: google-github-actions/get-gke-credentials@v1
