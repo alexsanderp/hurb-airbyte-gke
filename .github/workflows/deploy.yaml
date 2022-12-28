@@ -22,8 +22,13 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
 
+      - uses: azure/setup-kubectl@v3
+
       - name: Gcloud Auth
         run: gcloud auth activate-service-account --key-file=credentials.json
+
+      - name: Gcloud Connect to GKE
+        run: gcloud container clusters get-credentials hurb-gke-cluster --region us-central1 --project hurb-373018
 
       - name: Remove GCP credentials.json
         if: always()
