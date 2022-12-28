@@ -1,11 +1,11 @@
 provider "google" {
-  project     = "hurb-373018"
-  region      = "us-central1"
-  zone        = "us-central1-a"
+  project = "hurb-373018"
+  region  = "us-central1"
+  zone    = "us-central1-a"
 }
 
 provider "google-beta" {
-  project     = "hurb-373018"
-  region      = "us-central1"
-  zone        = "us-central1-a"
+  project = "hurb-373018"
+  region  = "us-central1"
+  zone    = "us-central1-a"
 }

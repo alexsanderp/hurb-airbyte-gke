@@ -1,6 +1,6 @@
 terraform {
   backend "gcs" {
-    bucket      = "hurb-terraform"
-    prefix      = "tfstate"
+    bucket = "hurb-terraform"
+    prefix = "tfstate"
   }
 }
