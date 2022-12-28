@@ -1,0 +1,30 @@
+name: Deploy Airbyte
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy_airbyte:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: helm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create GCP credentials.json
+        run: |
+          echo ${{ secrets.GCP_CREDENTIALS_JSON }} > credentials.json
+          chmod 400 credentials.json
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Gcloud Auth
+        run: gcloud auth activate-service-account --key-file=credentials.json
+
+      - name: Remove GCP credentials.json
+        if: always()
+        run: rm credentials.json
