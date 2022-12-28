@@ -1,0 +1,58 @@
+name: Deploy Airbyte
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy_airbyte:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: helm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Kubectl
+        run: |
+          sudo curl -fsSLo /etc/apt/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+          sudo echo "deb [signed-by=/etc/apt/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+          sudo apt update
+          sudo apt install -y kubectl
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+         credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
+      - name: Gcloud Connect to GKE
+        uses: google-github-actions/get-gke-credentials@v1
+        with:
+          project_id: hurb-373018
+          cluster_name: hurb-gke-cluster
+          location: us-central1
+
+      - name: Helm Nginx
+        run: |
+          helm repo add nginx-stable https://helm.nginx.com/stable
+          helm upgrade --install nginx nginx-stable/nginx-ingress
+
+      - name: Helm Kubernetes Dashboard
+        run: |
+          helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
+          helm upgrade --install kubernetes-dashboard kubernetes-dashboard/kubernetes-dashboard
+
+      - name: Helm Airbyte
+        run: |
+          kubectl create namespace airbyte | exit 0
+          helm repo add airbyte https://airbytehq.github.io/helm-charts
+          helm upgrade --install airbyte airbyte/airbyte --values airbyte/values.yaml --namespace airbyte
