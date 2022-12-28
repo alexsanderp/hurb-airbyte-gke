@@ -19,6 +19,8 @@ jobs:
 
       - name: Install Helm
         uses: azure/setup-helm@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # only needed if version is 'latest'
 
       - name: Create GCP credentials.json
         run: |
